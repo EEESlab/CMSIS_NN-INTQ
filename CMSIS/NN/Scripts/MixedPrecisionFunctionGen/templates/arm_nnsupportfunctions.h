@@ -99,59 +99,7 @@ void      arm_q7_to_q15_no_shift(const q7_t * pSrc, q15_t * pDst, uint32_t block
  */
 void      arm_q7_to_q15_reordered_no_shift(const q7_t * pSrc, q15_t * pDst, uint32_t blockSize);
 
-
-/**
- * @brief Converts the elements of u8 vector to
- *        a reordered int16 vector (without left-shift).
- * @param[in] *pSrc       points to the u8 input vector
- * @param[out] *pDst      points to the int16 output vector
- * @param[in] blockSize   length of the input vector
- * @param[in] offset      input quantization offset
- * @return none.
- */
-
-void
-arm_u8_to_int16_reordered(
-                        const uint8_t *pSrc,
-                        int16_t *pDst,
-                        uint32_t blockSize,
-                        const uint8_t offset);
-
-/**
- * @brief Converts the elements of u4 vector to
- *        a reordered int16 vector (without left-shift).
- * @param[in] *pSrc       points to the u4 input vector
- * @param[out] *pDst      points to the int16 output vector
- * @param[in] blockSize   length of the input vector
- * @param[in] offset      input quantization offset
- * @return none.
- */
-
-void
-arm_u4_to_int16_reordered(
-                        const uint8_t *pSrc,
-                        int16_t *pDst,
-                        uint32_t blockSize,
-                        const uint8_t offset);
-
-/**
- * @brief Converts the elements of u2 vector to
- *        a reordered int16 vector (without left-shift).
- * @param[in] *pSrc       points to the u2 input vector
- * @param[out] *pDst      points to the int16 output vector
- * @param[in] blockSize   length of the input vector
- * @param[in] offset      input quantization offset
- * @return none.
- */
-
-void
-arm_u2_to_int16_reordered(
-                        const uint8_t *pSrc,
-                        int16_t *pDst,
-                        uint32_t blockSize,
-                        const uint8_t offset);
-
-
+${CMSISSupportAPI}
 
 #if defined (ARM_MATH_DSP)
 

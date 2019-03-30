@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2010-2018 Arm Limited or its affiliates. All rights reserved.
+ * Modifications Copyright (C) 2019 University of Bologna
  *
  * SPDX-License-Identifier: Apache-2.0
  *
@@ -20,17 +21,18 @@
  * Project:      CMSIS NN Library
  * Title:        arm_nnfunctions.h
  * Description:  Public header file for CMSIS NN Library
- *
- * $Date:        13. July 2018
- * $Revision:    V.1.0.0
- *
+ * 
  * Target Processor:  Cortex-M cores
+ * 
+ * Modification: Mixed-Precision INT-Q extension
  *
- * Modification: INT-Q extension
- * $Date:        09. July 2018
- * $Authors:     Manuele Rusci - manuele.rusci@unibo.it
- *               Alessandro Capotondi - alessandro.capotondi@unibo.it
- *               Francesco Conti - f.conti@unibo.it
+ * $Date:        3 September 2019
+ * $Revision:    V.1.2.0
+ *
+ * $Authors:     Alessandro Capotondi - alessandro.capotondi@unibo.it
+ *               Marco Fariselli - marco.fariselli2@unibo.it 
+ *               Manuele Rusci - manuele.rusci@unibo.it
+ *               
  * -------------------------------------------------------------------- */
 
 /**
@@ -802,37 +804,6 @@ extern    "C"
                                                       q15_t * pOut, 
                                                       q15_t * vec_buffer);
 
-	/**
-	 * @brief Asymmetric UINT8 fully-connected layer function
-	 * @param[in]       pV          pointer to input vector
-	 * @param[in]       pM          pointer to matrix weights
-	 * @param[in]       dim_vec     length of the vector
-	 * @param[in]       num_of_rows number of rows in weight matrix
-	 * @param[in]       z_wt        weights offset
-	 * @param[in]       z_in        input offset
-	 * @param[in]       z_out       output offset
-	 * @param[in]       m_zero      m zero quantization param
-	 * @param[in]       n_zero      n zero quantization param
-	 * @param[in]       bias        pointer to bias
-	 * @param[in,out]   pOut        pointer to output vector
-	 * @param[in,out]   vec_buffer  pointer to buffer space for input
-	 * @return     The function returns <code>ARM_MATH_SUCCESS</code>
-	 *
-	 */
-    arm_status arm_fully_connected_asym_uint8(const uint8_t * pV,
-                               const uint8_t * pM,
-                               const uint16_t dim_vec,
-                               const uint16_t num_of_rows,
-    						   const uint8_t z_wt,
-    						   const uint8_t z_in,
-    						   const uint8_t z_out,
-    						   const int32_t m_zero,
-    						   const uint16_t n_zero,
-                               const int32_t * bias,
-    						   uint8_t * pOut,
-    						   int16_t * vec_buffer);
-
-
 /**
  * @brief Matrix-Multiplication Kernels for Convolution
  *
@@ -986,30 +957,6 @@ extern    "C"
                                  q7_t * bufferA, 
                                  q7_t * Im_out);
 
-    /**
-     * @brief Asymmetric UINT8 max pooling function
-     * @param[in,out]   Im_in       pointer to input tensor
-     * @param[in]       dim_im_in   input tensor dimension
-     * @param[in]       ch_im_in    number of input tensor channels
-     * @param[in]       dim_kernel  filter kernel size
-     * @param[in]       padding     padding sizes
-     * @param[in]       stride      convolution stride
-     * @param[in]       dim_im_out  output tensor dimension
-     * @param[in,out]   bufferA     pointer to buffer space for input
-     * @param[in,out]   Im_out      pointer to output tensor
-     * @return none.
-     */
-    void      arm_maxpool_asym_uint8_HWC(uint8_t * Im_in,
-    						const uint16_t dim_im_in,
-    						const uint16_t ch_im_in,
-    						const uint16_t dim_kernel,
-    						const uint16_t padding,
-    						const uint16_t stride,
-							const uint16_t dim_im_out,
-							int16_t * bufferA,
-							uint8_t * Im_out);
-
-
   /**
    * @brief Q7 average pooling function
    * @param[in]       Im_in       pointer to input tensor
@@ -1034,28 +981,6 @@ extern    "C"
                                  const uint16_t dim_im_out, 
                                  q7_t * bufferA, 
                                  q7_t * Im_out);
-    /**
-     * @brief Asymmetric UINT8 average pooling function
-     * @param[in,out]   Im_in       pointer to input tensor
-     * @param[in]       dim_im_in   input tensor dimension
-     * @param[in]       ch_im_in    number of input tensor channels
-     * @param[in]       dim_kernel  filter kernel size
-     * @param[in]       padding     padding sizes
-     * @param[in]       stride      convolution stride
-     * @param[in]       dim_im_out  output tensor dimension
-     * @param[in,out]   bufferA     pointer to buffer space for input
-     * @param[in,out]   Im_out      pointer to output tensor
-     * @return none.
-     */
-    void     arm_avepool_asym_uint8_HWC(uint8_t * Im_in,
-                       const uint16_t dim_im_in,
-                       const uint16_t ch_im_in,
-                       const uint16_t dim_kernel,
-                       const uint16_t padding,
-                       const uint16_t stride,
-					   const uint16_t dim_im_out,
-					   int16_t * bufferA,
-					   uint8_t * Im_out);
 
 /**
  * @defgroup Softmax Softmax Functions
@@ -1089,160 +1014,14895 @@ extern    "C"
 
 
     /*
-     *  INT-Q quantized layers
+     *  Quantized Mixed-Precision Support
      */
-    arm_status arm_convolve_HWC_int1(
-    							const uint32_t * Im_in,
-								const uint16_t dim_im_in,
-								const uint16_t ch_im_in,
-								const uint32_t * wt,
-								const uint16_t ch_im_out,
-								const uint16_t dim_kernel,
-								const uint16_t padding,
-								const uint16_t stride,
-								uint8_t * Im_out,
-								const uint16_t dim_im_out,
-								uint32_t * bufferA,
-								const int16_t * pThreshold,
-								int8_t * bufferB);
 
-    arm_status arm_convolve_HWC_int2(
-    							const int8_t * Im_in,
-                                const uint16_t dim_im_in,
-                                const uint16_t ch_im_in,
-                                const int8_t * wt,
-                                const uint16_t ch_im_out,
-                                const uint16_t dim_kernel,
-                                const uint16_t padding,
-                                const uint16_t stride,
-                                int8_t * Im_out,
-                                const uint16_t dim_im_out,
-                                int16_t * bufferA,
-                                const int16_t * pThreshold,
-                                int8_t * bufferB);
+  /**
+   * @brief Mixed Precision Convolution weights (in: u8, out: u8, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
 
-    arm_status arm_convolve_HWC_int4(
-    							const int8_t * Im_in,
-                                const uint16_t dim_im_in,
-                                const uint16_t ch_im_in,
-                                const int8_t * wt,
-                                const uint16_t ch_im_out,
-                                const uint16_t dim_kernel,
-                                const uint16_t padding,
-                                const uint16_t stride,
-                                int8_t * Im_out,
-                                const uint16_t dim_im_out,
-                                int16_t * bufferA,
-                                const int16_t * pThreshold,
-                                int8_t * bufferB);
+arm_status
+arm_convolve_HWC_u8_u8_u8(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
 
-    int8_t *arm_nn_mat_mult_kernel_int2_int16_reordered(
-    							const int8_t * pA,
-								const int16_t * pInBuffer,
-								const uint16_t ch_im_out,
-								const uint16_t numCol_A,
-								const int16_t * pThreshold,
-								int8_t * pOut);
+  /**
+   * @brief Mixed Precision Convolution thr (in: u8, out: u8, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
 
-    int8_t *arm_nn_mat_mult_kernel_int4_int16_reordered(
-    							const int8_t * pA,
-								const int16_t * pInBuffer,
-								const uint16_t ch_im_out,
-								const uint16_t numCol_A,
-								const int16_t * pThreshold,
-								int8_t * pOut);
+arm_status
+arm_convolve_HWC_u8_u8_u8_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
 
-    uint32_t *arm_nn_mat_mult_kernel_int1_reordered(
-    							const uint32_t * pA,
-								const uint32_t * pInBuffer,
-								const uint16_t ch_im_out,
-								const uint32_t numCol_A,
-								const int16_t * pThreshold,
-								uint32_t * pOut);
+  /**
+   * @brief Mixed Precision Convolution icn (in: u8, out: u8, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
 
-    arm_status arm_convolve_1x1_HWC_uint8_asym_fast_nonsquare(
-								const uint8_t * Im_in,
-								const uint16_t dim_im_in_x,
-								const uint16_t dim_im_in_y,
-								const uint16_t ch_im_in,
-								const uint8_t * wt,
-								const uint8_t z_wt,
-								const uint8_t z_in,
-								const uint8_t z_out,
-								const int16_t m_zero,
-								const uint16_t n_zero,
-								const uint16_t ch_im_out,
-								const uint16_t dim_kernel_x,
-								const uint16_t dim_kernel_y,
-								const uint16_t padding_x,
-								const uint16_t padding_y,
-								const uint16_t stride_x,
-								const uint16_t stride_y,
-								const int32_t * bias,
-								uint8_t * Im_out,
-								const uint16_t dim_im_out_x,
-								const uint16_t dim_im_out_y,
-								int16_t * bufferA,
-								uint8_t * bufferB);
+arm_status
+arm_convolve_HWC_u8_u8_u8_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
 
-    arm_status arm_convolve_HWC_asym_uint8(
-    							const uint8_t * Im_in,
-								const uint16_t dim_im_in,
-								const uint16_t ch_im_in,
-								const uint8_t * wt,
-								const uint8_t z_wt,
-								const uint8_t z_in,
-								const uint8_t z_out,
-								const int32_t m_zero,
-								const uint16_t n_zero,
-								const uint16_t ch_im_out,
-								const uint16_t dim_kernel,
-								const uint8_t left_padding,
-								const uint8_t right_padding,
-								const uint8_t top_padding,
-								const uint8_t bottom_padding,
-								const uint16_t stride,
-								const int32_t * bias,
-								uint8_t * Im_out,
-								const uint16_t dim_im_out,
-								int16_t * bufferA,
-								uint8_t * bufferB);
+  /**
+   * @brief Mixed Precision Convolution thr (in: u8, out: u8, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
 
-    arm_status arm_depthwise_separable_conv_HWC_asym_uint8(
-								const uint8_t * Im_in,
-								const uint16_t dim_im_in,
-								const uint16_t ch_im_in,
-								const uint8_t * wt,
-								const uint8_t z_wt,
-								const uint8_t z_in,
-								const uint8_t z_out,
-								const int32_t m_zero,
-								const uint16_t n_zero,
-								const uint16_t ch_im_out,
-								const uint16_t dim_kernel,
-								const uint8_t left_padding,
-								const uint8_t right_padding,
-								const uint8_t top_padding,
-								const uint8_t bottom_padding,
-								const uint16_t stride,
-								const int32_t * bias,
-								uint8_t * Im_out,
-								const uint16_t dim_im_out,
-								int16_t * bufferA,
-								uint8_t * bufferB);
+arm_status
+arm_convolve_HWC_u8_u8_u8_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
 
-    uint8_t *arm_nn_mat_mult_kernel_asym_uint8_int16_reordered(
-    							const uint8_t * pA,
-								const int16_t * pInBuffer,
-								const uint8_t z_a,
-								const uint8_t z_b,
-								const uint8_t z_out,
-								const int32_t m_zero,
-								const uint16_t n_zero,
-								const uint16_t ch_im_out,
-								const uint16_t numCol_A,
-								const int32_t * bias,
-								uint8_t * pOut);
+  /**
+   * @brief Mixed Precision Convolution icn (in: u8, out: u8, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u8_u8_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution weights (in: u8, out: u8, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u8_u4(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u8, out: u8, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u8_u4_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u8, out: u8, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u8_u4_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u8, out: u8, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u8_u4_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u8, out: u8, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u8_u4_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution weights (in: u8, out: u8, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u8_u2(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u8, out: u8, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u8_u2_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u8, out: u8, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u8_u2_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u8, out: u8, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u8_u2_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u8, out: u8, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u8_u2_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution weights (in: u8, out: u4, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u4_u8(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u8, out: u4, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u4_u8_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u8, out: u4, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u4_u8_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u8, out: u4, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u4_u8_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u8, out: u4, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u4_u8_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution weights (in: u8, out: u4, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u4_u4(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u8, out: u4, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u4_u4_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u8, out: u4, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u4_u4_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u8, out: u4, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u4_u4_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u8, out: u4, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u4_u4_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution weights (in: u8, out: u4, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u4_u2(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u8, out: u4, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u4_u2_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u8, out: u4, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u4_u2_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u8, out: u4, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u4_u2_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u8, out: u4, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u4_u2_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution weights (in: u8, out: u2, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u2_u8(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u8, out: u2, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u2_u8_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u8, out: u2, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u2_u8_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u8, out: u2, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u2_u8_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u8, out: u2, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u2_u8_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution weights (in: u8, out: u2, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u2_u4(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u8, out: u2, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u2_u4_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u8, out: u2, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u2_u4_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u8, out: u2, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u2_u4_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u8, out: u2, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u2_u4_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution weights (in: u8, out: u2, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u2_u2(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u8, out: u2, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u2_u2_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u8, out: u2, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u2_u2_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u8, out: u2, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u2_u2_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u8, out: u2, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u8_u2_u2_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution weights (in: u4, out: u8, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u8_u8(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u4, out: u8, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u8_u8_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u4, out: u8, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u8_u8_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u4, out: u8, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u8_u8_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u4, out: u8, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u8_u8_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution weights (in: u4, out: u8, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u8_u4(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u4, out: u8, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u8_u4_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u4, out: u8, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u8_u4_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u4, out: u8, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u8_u4_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u4, out: u8, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u8_u4_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution weights (in: u4, out: u8, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u8_u2(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u4, out: u8, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u8_u2_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u4, out: u8, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u8_u2_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u4, out: u8, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u8_u2_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u4, out: u8, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u8_u2_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution weights (in: u4, out: u4, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u4_u8(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u4, out: u4, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u4_u8_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u4, out: u4, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u4_u8_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u4, out: u4, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u4_u8_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u4, out: u4, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u4_u8_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution weights (in: u4, out: u4, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u4_u4(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u4, out: u4, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u4_u4_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u4, out: u4, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u4_u4_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u4, out: u4, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u4_u4_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u4, out: u4, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u4_u4_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution weights (in: u4, out: u4, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u4_u2(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u4, out: u4, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u4_u2_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u4, out: u4, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u4_u2_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u4, out: u4, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u4_u2_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u4, out: u4, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u4_u2_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution weights (in: u4, out: u2, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u2_u8(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u4, out: u2, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u2_u8_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u4, out: u2, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u2_u8_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u4, out: u2, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u2_u8_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u4, out: u2, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u2_u8_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution weights (in: u4, out: u2, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u2_u4(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u4, out: u2, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u2_u4_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u4, out: u2, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u2_u4_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u4, out: u2, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u2_u4_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u4, out: u2, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u2_u4_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution weights (in: u4, out: u2, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u2_u2(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u4, out: u2, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u2_u2_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u4, out: u2, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u2_u2_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u4, out: u2, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u2_u2_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u4, out: u2, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u4_u2_u2_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution weights (in: u2, out: u8, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u8_u8(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u2, out: u8, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u8_u8_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u2, out: u8, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u8_u8_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u2, out: u8, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u8_u8_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u2, out: u8, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u8_u8_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution weights (in: u2, out: u8, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u8_u4(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u2, out: u8, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u8_u4_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u2, out: u8, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u8_u4_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u2, out: u8, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u8_u4_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u2, out: u8, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u8_u4_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution weights (in: u2, out: u8, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u8_u2(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u2, out: u8, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u8_u2_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u2, out: u8, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u8_u2_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u2, out: u8, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u8_u2_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u2, out: u8, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u8_u2_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution weights (in: u2, out: u4, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u4_u8(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u2, out: u4, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u4_u8_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u2, out: u4, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u4_u8_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u2, out: u4, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u4_u8_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u2, out: u4, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u4_u8_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution weights (in: u2, out: u4, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u4_u4(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u2, out: u4, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u4_u4_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u2, out: u4, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u4_u4_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u2, out: u4, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u4_u4_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u2, out: u4, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u4_u4_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution weights (in: u2, out: u4, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u4_u2(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u2, out: u4, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u4_u2_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u2, out: u4, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u4_u2_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u2, out: u4, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u4_u2_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u2, out: u4, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u4_u2_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution weights (in: u2, out: u2, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u2_u8(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u2, out: u2, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u2_u8_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u2, out: u2, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u2_u8_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u2, out: u2, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u2_u8_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u2, out: u2, wt: u8)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u2_u8_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution weights (in: u2, out: u2, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u2_u4(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u2, out: u2, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u2_u4_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u2, out: u2, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u2_u4_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u2, out: u2, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u2_u4_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u2, out: u2, wt: u4)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u2_u4_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution weights (in: u2, out: u2, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u2_u2(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u2, out: u2, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u2_u2_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u2, out: u2, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u2_u2_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution thr (in: u2, out: u2, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u2_u2_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+  /**
+   * @brief Mixed Precision Convolution icn (in: u2, out: u2, wt: u2)
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       *m_zero     pointer to m zero quantization params (per-output-ch)
+   * @param[in]       *n_zero     pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_convolve_HWC_u2_u2_u2_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u8 weights
+   *        and produce u8 output activations. Outputs are quantized using weights folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u8_u8(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u8 weights
+   *        and produce u8 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u8_u8_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u8 weights
+   *        and produce u8 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u8_u8_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u8 weights
+   *        and produce u8 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u8_u8_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u8 weights
+   *        and produce u8 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u8_u8_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u4 weights
+   *        and produce u8 output activations. Outputs are quantized using weights folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u8_u4(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u4 weights
+   *        and produce u8 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u8_u4_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u4 weights
+   *        and produce u8 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u8_u4_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u4 weights
+   *        and produce u8 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u8_u4_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u4 weights
+   *        and produce u8 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u8_u4_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u2 weights
+   *        and produce u8 output activations. Outputs are quantized using weights folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u8_u2(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u2 weights
+   *        and produce u8 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u8_u2_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u2 weights
+   *        and produce u8 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u8_u2_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u2 weights
+   *        and produce u8 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u8_u2_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u2 weights
+   *        and produce u8 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u8_u2_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u8 weights
+   *        and produce u8 output activations. Outputs are quantized using weights folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u4_u8(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u8 weights
+   *        and produce u8 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u4_u8_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u8 weights
+   *        and produce u8 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u4_u8_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u8 weights
+   *        and produce u8 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u4_u8_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u8 weights
+   *        and produce u8 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u4_u8_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u4 weights
+   *        and produce u8 output activations. Outputs are quantized using weights folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u4_u4(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u4 weights
+   *        and produce u8 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u4_u4_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u4 weights
+   *        and produce u8 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u4_u4_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u4 weights
+   *        and produce u8 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u4_u4_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u4 weights
+   *        and produce u8 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u4_u4_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u2 weights
+   *        and produce u8 output activations. Outputs are quantized using weights folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u4_u2(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u2 weights
+   *        and produce u8 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u4_u2_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u2 weights
+   *        and produce u8 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u4_u2_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u2 weights
+   *        and produce u8 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u4_u2_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u2 weights
+   *        and produce u8 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u4_u2_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u8 weights
+   *        and produce u8 output activations. Outputs are quantized using weights folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u2_u8(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u8 weights
+   *        and produce u8 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u2_u8_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u8 weights
+   *        and produce u8 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u2_u8_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u8 weights
+   *        and produce u8 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u2_u8_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u8 weights
+   *        and produce u8 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u2_u8_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u4 weights
+   *        and produce u8 output activations. Outputs are quantized using weights folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u2_u4(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u4 weights
+   *        and produce u8 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u2_u4_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u4 weights
+   *        and produce u8 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u2_u4_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u4 weights
+   *        and produce u8 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u2_u4_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u4 weights
+   *        and produce u8 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u2_u4_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u2 weights
+   *        and produce u8 output activations. Outputs are quantized using weights folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u2_u2(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u2 weights
+   *        and produce u8 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u2_u2_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u2 weights
+   *        and produce u8 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u2_u2_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u2 weights
+   *        and produce u8 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u2_u2_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u8 activations, u2 weights
+   *        and produce u8 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u8_u2_u2_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u8 weights
+   *        and produce u4 output activations. Outputs are quantized using weights folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u8_u8(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u8 weights
+   *        and produce u4 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u8_u8_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u8 weights
+   *        and produce u4 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u8_u8_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u8 weights
+   *        and produce u4 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u8_u8_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u8 weights
+   *        and produce u4 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u8_u8_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u4 weights
+   *        and produce u4 output activations. Outputs are quantized using weights folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u8_u4(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u4 weights
+   *        and produce u4 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u8_u4_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u4 weights
+   *        and produce u4 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u8_u4_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u4 weights
+   *        and produce u4 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u8_u4_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u4 weights
+   *        and produce u4 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u8_u4_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u2 weights
+   *        and produce u4 output activations. Outputs are quantized using weights folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u8_u2(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u2 weights
+   *        and produce u4 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u8_u2_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u2 weights
+   *        and produce u4 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u8_u2_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u2 weights
+   *        and produce u4 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u8_u2_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u2 weights
+   *        and produce u4 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u8_u2_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u8 weights
+   *        and produce u4 output activations. Outputs are quantized using weights folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u4_u8(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u8 weights
+   *        and produce u4 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u4_u8_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u8 weights
+   *        and produce u4 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u4_u8_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u8 weights
+   *        and produce u4 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u4_u8_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u8 weights
+   *        and produce u4 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u4_u8_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u4 weights
+   *        and produce u4 output activations. Outputs are quantized using weights folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u4_u4(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u4 weights
+   *        and produce u4 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u4_u4_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u4 weights
+   *        and produce u4 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u4_u4_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u4 weights
+   *        and produce u4 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u4_u4_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u4 weights
+   *        and produce u4 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u4_u4_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u2 weights
+   *        and produce u4 output activations. Outputs are quantized using weights folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u4_u2(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u2 weights
+   *        and produce u4 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u4_u2_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u2 weights
+   *        and produce u4 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u4_u2_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u2 weights
+   *        and produce u4 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u4_u2_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u2 weights
+   *        and produce u4 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u4_u2_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u8 weights
+   *        and produce u4 output activations. Outputs are quantized using weights folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u2_u8(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u8 weights
+   *        and produce u4 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u2_u8_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u8 weights
+   *        and produce u4 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u2_u8_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u8 weights
+   *        and produce u4 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u2_u8_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u8 weights
+   *        and produce u4 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u2_u8_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u4 weights
+   *        and produce u4 output activations. Outputs are quantized using weights folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u2_u4(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u4 weights
+   *        and produce u4 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u2_u4_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u4 weights
+   *        and produce u4 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u2_u4_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u4 weights
+   *        and produce u4 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u2_u4_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u4 weights
+   *        and produce u4 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u2_u4_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u2 weights
+   *        and produce u4 output activations. Outputs are quantized using weights folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u2_u2(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u2 weights
+   *        and produce u4 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u2_u2_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u2 weights
+   *        and produce u4 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u2_u2_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u2 weights
+   *        and produce u4 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u2_u2_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u4 activations, u2 weights
+   *        and produce u4 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u4_u2_u2_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u8 weights
+   *        and produce u2 output activations. Outputs are quantized using weights folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u8_u8(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u8 weights
+   *        and produce u2 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u8_u8_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u8 weights
+   *        and produce u2 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u8_u8_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u8 weights
+   *        and produce u2 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u8_u8_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u8 weights
+   *        and produce u2 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u8_u8_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u4 weights
+   *        and produce u2 output activations. Outputs are quantized using weights folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u8_u4(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u4 weights
+   *        and produce u2 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u8_u4_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u4 weights
+   *        and produce u2 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u8_u4_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u4 weights
+   *        and produce u2 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u8_u4_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u4 weights
+   *        and produce u2 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u8_u4_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u2 weights
+   *        and produce u2 output activations. Outputs are quantized using weights folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u8_u2(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u2 weights
+   *        and produce u2 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u8_u2_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u2 weights
+   *        and produce u2 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u8_u2_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u2 weights
+   *        and produce u2 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u8_u2_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u2 weights
+   *        and produce u2 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u8_u2_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u8 weights
+   *        and produce u2 output activations. Outputs are quantized using weights folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u4_u8(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u8 weights
+   *        and produce u2 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u4_u8_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u8 weights
+   *        and produce u2 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u4_u8_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u8 weights
+   *        and produce u2 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u4_u8_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u8 weights
+   *        and produce u2 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u4_u8_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u4 weights
+   *        and produce u2 output activations. Outputs are quantized using weights folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u4_u4(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u4 weights
+   *        and produce u2 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u4_u4_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u4 weights
+   *        and produce u2 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u4_u4_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u4 weights
+   *        and produce u2 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u4_u4_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u4 weights
+   *        and produce u2 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u4_u4_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u2 weights
+   *        and produce u2 output activations. Outputs are quantized using weights folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u4_u2(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u2 weights
+   *        and produce u2 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u4_u2_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u2 weights
+   *        and produce u2 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u4_u2_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u2 weights
+   *        and produce u2 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u4_u2_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u2 weights
+   *        and produce u2 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u4_u2_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u8 weights
+   *        and produce u2 output activations. Outputs are quantized using weights folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u2_u8(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u8 weights
+   *        and produce u2 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u2_u8_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u8 weights
+   *        and produce u2 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u2_u8_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u8 weights
+   *        and produce u2 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u2_u8_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u8 weights
+   *        and produce u2 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u2_u8_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u4 weights
+   *        and produce u2 output activations. Outputs are quantized using weights folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u2_u4(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u4 weights
+   *        and produce u2 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u2_u4_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u4 weights
+   *        and produce u2 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u2_u4_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u4 weights
+   *        and produce u2 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u2_u4_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u4 weights
+   *        and produce u2 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u2_u4_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u2 weights
+   *        and produce u2 output activations. Outputs are quantized using weights folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u2_u2(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u2 weights
+   *        and produce u2 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u2_u2_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u2 weights
+   *        and produce u2 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       z_wt        weights offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u2_u2_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u2 weights
+   *        and produce u2 output activations. Outputs are quantized using thr folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       thresholds  pointer to thresholds
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u2_u2_PACT_CH_thr(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const int16_t * thresholds,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+/**
+   * @brief Mixed Precision Depthwise Convolutional function that uses u2 activations, u2 weights
+   *        and produce u2 output activations. Outputs are quantized using icn folding technique.
+   *
+   * @param[in]       Im_in       pointer to input tensor
+   * @param[in]       dim_im_in   input tensor dimension
+   * @param[in]       ch_im_in    number of input tensor channels
+   * @param[in]       wt          pointer to kernel weights
+   * @param[in]       ch_im_out   number of filters, i.e., output tensor channels
+   * @param[in]       dim_kernel  filter kernel size
+   * @param[in]       left_pad    padding sizes
+   * @param[in]       right_pad   padding sizes
+   * @param[in]       top_pad     padding sizes
+   * @param[in]       bottom_pad  padding sizes
+   * @param[in]       stride      convolution stride
+   * @param[in]       bias        pointer to bias
+   * @param[in,out]   Im_out      pointer to output tensor
+   * @param[in]       dim_im_out  output tensor dimension
+   * @param[in]       z_in        input offset
+   * @param[in]       *z_wt       weights offset, per-output channel
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @param[in,out]   bufferA     pointer to buffer space for input
+   * @param[in,out]   bufferB     pointer to buffer space for output
+   * @return     The function returns either
+   * <code>ARM_MATH_SIZE_MISMATCH</code> or <code>ARM_MATH_SUCCESS</code> based on the outcome of size checking.
+   */
+
+arm_status
+arm_depthwise_separable_conv_HWC_u2_u2_u2_PACT_CH_icn(const uint8_t * Im_in,
+                        const uint16_t dim_im_in,
+                        const uint16_t ch_im_in,
+                        const uint8_t * wt,
+                        const uint16_t ch_im_out,
+                        const uint16_t dim_kernel,
+                        const uint8_t left_padding,
+                        const uint8_t right_padding,
+                        const uint8_t top_padding,
+                        const uint8_t bottom_padding,
+                        const uint16_t stride,
+                        const int32_t * bias,
+                        uint8_t * Im_out,
+                        const uint16_t dim_im_out,
+                        const uint8_t z_in,
+                        const uint8_t *z_wt,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero,
+                        int16_t * bufferA,
+                        uint8_t * bufferB);
+
+ /**
+   * @brief Matrix-Multiplication function for u8 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u8 using weights config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u8_int16_u8(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t z_a,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero);
+
+ /**
+   * @brief Matrix-Multiplication function for u8 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u8 using thr config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_a         A operand offset
+   * @param[in]       thresholds  pointer to thresholds for quantization
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u8_int16_u8_thr(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t z_a,
+                        const int16_t * thresholds);
+
+ /**
+   * @brief Matrix-Multiplication function for u8 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u8 using icn config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u8_int16_u8_icn(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t z_a,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero);
+
+ /**
+   * @brief Matrix-Multiplication function for u8 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u8 using thr config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       *z_a        pointer to A operand offsets (per-output channel)
+   * @param[in]       thresholds  pointer to thresholds for quantization
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u8_int16_u8_PACT_CH_thr(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t *z_a,
+                        const int16_t * thresholds);
+
+ /**
+   * @brief Matrix-Multiplication function for u8 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u8 using icn config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       *z_a        pointer to A operand offsets (per-output channel)
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u8_int16_u8_PACT_CH_icn(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t *z_a,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero);
+
+ /**
+   * @brief Matrix-Multiplication function for u4 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u8 using weights config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u4_int16_u8(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t z_a,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero);
+
+ /**
+   * @brief Matrix-Multiplication function for u4 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u8 using thr config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_a         A operand offset
+   * @param[in]       thresholds  pointer to thresholds for quantization
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u4_int16_u8_thr(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t z_a,
+                        const int16_t * thresholds);
+
+ /**
+   * @brief Matrix-Multiplication function for u4 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u8 using icn config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u4_int16_u8_icn(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t z_a,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero);
+
+ /**
+   * @brief Matrix-Multiplication function for u4 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u8 using thr config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       *z_a        pointer to A operand offsets (per-output channel)
+   * @param[in]       thresholds  pointer to thresholds for quantization
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u4_int16_u8_PACT_CH_thr(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t *z_a,
+                        const int16_t * thresholds);
+
+ /**
+   * @brief Matrix-Multiplication function for u4 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u8 using icn config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       *z_a        pointer to A operand offsets (per-output channel)
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u4_int16_u8_PACT_CH_icn(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t *z_a,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero);
+
+ /**
+   * @brief Matrix-Multiplication function for u2 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u8 using weights config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u2_int16_u8(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t z_a,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero);
+
+ /**
+   * @brief Matrix-Multiplication function for u2 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u8 using thr config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_a         A operand offset
+   * @param[in]       thresholds  pointer to thresholds for quantization
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u2_int16_u8_thr(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t z_a,
+                        const int16_t * thresholds);
+
+ /**
+   * @brief Matrix-Multiplication function for u2 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u8 using icn config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u2_int16_u8_icn(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t z_a,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero);
+
+ /**
+   * @brief Matrix-Multiplication function for u2 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u8 using thr config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       *z_a        pointer to A operand offsets (per-output channel)
+   * @param[in]       thresholds  pointer to thresholds for quantization
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u2_int16_u8_PACT_CH_thr(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t *z_a,
+                        const int16_t * thresholds);
+
+ /**
+   * @brief Matrix-Multiplication function for u2 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u8 using icn config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       *z_a        pointer to A operand offsets (per-output channel)
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u2_int16_u8_PACT_CH_icn(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t *z_a,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero);
+
+ /**
+   * @brief Matrix-Multiplication function for u8 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u4 using weights config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u8_int16_u4(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t z_a,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero);
+
+ /**
+   * @brief Matrix-Multiplication function for u8 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u4 using thr config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_a         A operand offset
+   * @param[in]       thresholds  pointer to thresholds for quantization
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u8_int16_u4_thr(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t z_a,
+                        const int16_t * thresholds);
+
+ /**
+   * @brief Matrix-Multiplication function for u8 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u4 using icn config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u8_int16_u4_icn(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t z_a,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero);
+
+ /**
+   * @brief Matrix-Multiplication function for u8 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u4 using thr config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       *z_a        pointer to A operand offsets (per-output channel)
+   * @param[in]       thresholds  pointer to thresholds for quantization
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u8_int16_u4_PACT_CH_thr(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t *z_a,
+                        const int16_t * thresholds);
+
+ /**
+   * @brief Matrix-Multiplication function for u8 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u4 using icn config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       *z_a        pointer to A operand offsets (per-output channel)
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u8_int16_u4_PACT_CH_icn(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t *z_a,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero);
+
+ /**
+   * @brief Matrix-Multiplication function for u4 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u4 using weights config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u4_int16_u4(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t z_a,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero);
+
+ /**
+   * @brief Matrix-Multiplication function for u4 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u4 using thr config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_a         A operand offset
+   * @param[in]       thresholds  pointer to thresholds for quantization
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u4_int16_u4_thr(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t z_a,
+                        const int16_t * thresholds);
+
+ /**
+   * @brief Matrix-Multiplication function for u4 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u4 using icn config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u4_int16_u4_icn(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t z_a,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero);
+
+ /**
+   * @brief Matrix-Multiplication function for u4 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u4 using thr config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       *z_a        pointer to A operand offsets (per-output channel)
+   * @param[in]       thresholds  pointer to thresholds for quantization
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u4_int16_u4_PACT_CH_thr(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t *z_a,
+                        const int16_t * thresholds);
+
+ /**
+   * @brief Matrix-Multiplication function for u4 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u4 using icn config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       *z_a        pointer to A operand offsets (per-output channel)
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u4_int16_u4_PACT_CH_icn(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t *z_a,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero);
+
+ /**
+   * @brief Matrix-Multiplication function for u2 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u4 using weights config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u2_int16_u4(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t z_a,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero);
+
+ /**
+   * @brief Matrix-Multiplication function for u2 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u4 using thr config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_a         A operand offset
+   * @param[in]       thresholds  pointer to thresholds for quantization
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u2_int16_u4_thr(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t z_a,
+                        const int16_t * thresholds);
+
+ /**
+   * @brief Matrix-Multiplication function for u2 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u4 using icn config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u2_int16_u4_icn(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t z_a,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero);
+
+ /**
+   * @brief Matrix-Multiplication function for u2 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u4 using thr config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       *z_a        pointer to A operand offsets (per-output channel)
+   * @param[in]       thresholds  pointer to thresholds for quantization
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u2_int16_u4_PACT_CH_thr(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t *z_a,
+                        const int16_t * thresholds);
+
+ /**
+   * @brief Matrix-Multiplication function for u2 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u4 using icn config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       *z_a        pointer to A operand offsets (per-output channel)
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u2_int16_u4_PACT_CH_icn(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t *z_a,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero);
+
+ /**
+   * @brief Matrix-Multiplication function for u8 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u2 using weights config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u8_int16_u2(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t z_a,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero);
+
+ /**
+   * @brief Matrix-Multiplication function for u8 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u2 using thr config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_a         A operand offset
+   * @param[in]       thresholds  pointer to thresholds for quantization
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u8_int16_u2_thr(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t z_a,
+                        const int16_t * thresholds);
+
+ /**
+   * @brief Matrix-Multiplication function for u8 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u2 using icn config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u8_int16_u2_icn(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t z_a,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero);
+
+ /**
+   * @brief Matrix-Multiplication function for u8 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u2 using thr config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       *z_a        pointer to A operand offsets (per-output channel)
+   * @param[in]       thresholds  pointer to thresholds for quantization
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u8_int16_u2_PACT_CH_thr(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t *z_a,
+                        const int16_t * thresholds);
+
+ /**
+   * @brief Matrix-Multiplication function for u8 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u2 using icn config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       *z_a        pointer to A operand offsets (per-output channel)
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u8_int16_u2_PACT_CH_icn(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t *z_a,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero);
+
+ /**
+   * @brief Matrix-Multiplication function for u4 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u2 using weights config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u4_int16_u2(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t z_a,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero);
+
+ /**
+   * @brief Matrix-Multiplication function for u4 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u2 using thr config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_a         A operand offset
+   * @param[in]       thresholds  pointer to thresholds for quantization
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u4_int16_u2_thr(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t z_a,
+                        const int16_t * thresholds);
+
+ /**
+   * @brief Matrix-Multiplication function for u4 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u2 using icn config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u4_int16_u2_icn(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t z_a,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero);
+
+ /**
+   * @brief Matrix-Multiplication function for u4 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u2 using thr config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       *z_a        pointer to A operand offsets (per-output channel)
+   * @param[in]       thresholds  pointer to thresholds for quantization
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u4_int16_u2_PACT_CH_thr(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t *z_a,
+                        const int16_t * thresholds);
+
+ /**
+   * @brief Matrix-Multiplication function for u4 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u2 using icn config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       *z_a        pointer to A operand offsets (per-output channel)
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u4_int16_u2_PACT_CH_icn(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t *z_a,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero);
+
+ /**
+   * @brief Matrix-Multiplication function for u2 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u2 using weights config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      m zero quantization param
+   * @param[in]       n_zero      n zero quantization param
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u2_int16_u2(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t z_a,
+                        const uint8_t z_out,
+                        const int32_t m_zero,
+                        const int8_t n_zero);
+
+ /**
+   * @brief Matrix-Multiplication function for u2 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u2 using thr config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_a         A operand offset
+   * @param[in]       thresholds  pointer to thresholds for quantization
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u2_int16_u2_thr(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t z_a,
+                        const int16_t * thresholds);
+
+ /**
+   * @brief Matrix-Multiplication function for u2 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u2 using icn config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_a         A operand offset
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u2_int16_u2_icn(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t z_a,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero);
+
+ /**
+   * @brief Matrix-Multiplication function for u2 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u2 using thr config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       *z_a        pointer to A operand offsets (per-output channel)
+   * @param[in]       thresholds  pointer to thresholds for quantization
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u2_int16_u2_PACT_CH_thr(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t *z_a,
+                        const int16_t * thresholds);
+
+ /**
+   * @brief Matrix-Multiplication function for u2 x int16_t convolution with reordered columns.
+   *        Output is then quantized to u2 using icn config.folding technique.
+   * @param[in]       pA          pointer to operand A
+   * @param[in]       pInBuffer   pointer to operand B, always consists of 2 vectors
+   * @param[in]       ch_im_out   numRow of A
+   * @param[in]       numCol_A    numCol of A
+   * @param[in]       bias        the bias
+   * @param[in,out]   pOut        pointer to output
+   * @param[in]       z_a         A operand offset
+   * @param[in]       *z_a        pointer to A operand offsets (per-output channel)
+   * @param[in]       z_out       output offset
+   * @param[in]       m_zero      pointer to m zero quantization params (per-output-ch)
+   * @param[in]       n_zero      pointer to n zero quantization params (per-output-ch)
+   * @return     The function returns the incremented output pointer
+   *
+   * @details
+   *
+   * This function assumes that data in pInBuffer are reordered
+   */
+
+uint8_t *
+arm_nn_mat_mult_kernel_reordered_u2_int16_u2_PACT_CH_icn(const uint8_t * pA,
+                        const int16_t * pInBuffer,
+                        const uint16_t ch_im_out,
+                        const uint16_t numCol_A,
+                        const int32_t * bias,
+                        uint8_t * pOut,
+                        const uint8_t *z_a,
+                        const uint8_t z_out,
+                        const int32_t *m_zero,
+                        const int8_t *n_zero);
+
 
 #ifdef __cplusplus
 }
