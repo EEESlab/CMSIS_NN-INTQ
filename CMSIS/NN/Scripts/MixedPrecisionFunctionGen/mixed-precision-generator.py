@@ -21,7 +21,7 @@ CMSISSrcDirs = {'Include': CMSISInstallPath + "Include",
                 'NNSupport': CMSISInstallPath + "Source/NNSupportFunctions/"}
 CMSISDataPrecisions = ['u8', 'u4', 'u2']
 CMSISQuantizationMethods = ['PACT', 'PACT_CH']
-CMSISFoldingMethods = ['weights', 'thr', 'icn'] 
+CMSISFoldingMethods = ['weights', 'icn'] 
 CMSISConstrains = {'u8': 4,
                    'u4': 8,
                    'u2': 16}
